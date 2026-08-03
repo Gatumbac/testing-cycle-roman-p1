@@ -12,26 +12,6 @@ Gabriel Tumbaco Santana
 
 ![](./img/img2.png)
 
-| Node | Line | Statement |
-|---|---|---|
-| 1 | 40 | `def to_roman(n):` |
-| 2 | 41 | `if not isinstance(n, int) or isinstance(n, bool):` |
-| 3 | 42 | `raise RomanError("value must be an integer")` |
-| 4 | 43 | `if n < _MIN_VALUE:` |
-| 5 | 44 | `raise RomanError("value must be >= 1")` |
-| 6 | 45 | `if n > _MAX_VALUE:` |
-| 7 | 46 | `raise RomanError("value must be <= 3999")` |
-| 8 | 47 | `out = []` |
-| 9 | 48 | `remaining = n` |
-| 10 | 49 | `for value, symbol in _PAIRS:` |
-| 11 | 50 | `while remaining >= value:` |
-| 12 | 51 | `out.append(symbol)` |
-| 13 | 52 | `remaining -= value` |
-| 14 | 53 | `return "".join(out)` |
-
-Edges (18): 1→2, 2→3, 2→4, 3→14, 4→5, 4→6, 5→14, 6→7, 6→8, 7→14, 8→9, 9→10,
-10→11, 10→14, 11→12, 11→10, 12→13, 13→11.
-
 ### 10. Cyclomatic complexity
 
 ```
@@ -78,12 +58,6 @@ P5 and P6 cover the edges of P4 (6→8, 8→9, 9→10, 10→14), so every edge i
 | `_PAIRS` | module, 5 | 10 | c-use | (5, 10) | reaches 10 |
 | `_MIN_VALUE` | module, 36 | 4 | p-use | (36, 4) | reaches 4 |
 | `_MAX_VALUE` | module, 37 | 6 | p-use | (37, 6) | reaches 6 |
-
-Pairs from the redefinition inside the loop: `remaining -= value` at node 13 is a c-use and
-a def, so it opens (13, 11) and (13, 13) and kills the def at node 9. (9, 11) requires an
-input whose first pair is skipped (`to_roman(1)`); (13, 11) and (13, 13) require two or more
-passes through the body (`to_roman(2000)`). `value` and `symbol` are redefined at node 10 on
-each iteration, so their pairs never cross iterations.
 
 ### 13. Branch coverage
 
