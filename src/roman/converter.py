@@ -53,6 +53,32 @@ def to_roman(n):
     return "".join(out)
 
 
+def _canonical_error(text, groups):
+    for symbol in "VLD":
+        if text.count(symbol) > 1:
+            return symbol + " appears more than once"
+    run = 1
+    for i in range(1, len(text)):
+        run = run + 1 if text[i] == text[i - 1] else 1
+        if run > 3:
+            return text[i] + " appears four times in a row"
+    used_pairs = []
+    previous = None
+    limit = None
+    for value, subtracted, source in groups:
+        if subtracted is not None and source in used_pairs:
+            return source + " is used more than once"
+        if previous is not None and value > previous:
+            return source + " is worth more than the group before it"
+        if limit is not None and value >= limit:
+            return source + " is not smaller than the previous subtracted symbol"
+        if subtracted is not None:
+            used_pairs.append(source)
+            limit = subtracted
+        previous = value
+    return None
+
+
 def from_roman(s):
     if not isinstance(s, str):
         raise RomanError("value must be a string")
@@ -65,11 +91,14 @@ def from_roman(s):
     total = 0
     i = 0
     length = len(text)
+    groups = []
     while i < length:
         if i + 1 < length:
             pair = text[i:i + 2]
             if pair in _VALID_SUBTRACTIVE:
-                total += _SINGLE[pair[1]] - _SINGLE[pair[0]]
+                value = _SINGLE[pair[1]] - _SINGLE[pair[0]]
+                groups.append((value, _SINGLE[pair[0]], pair))
+                total += value
                 i += 2
                 continue
         current = _SINGLE[text[i]]
@@ -77,10 +106,14 @@ def from_roman(s):
             nxt = _SINGLE[text[i + 1]]
             if current < nxt:
                 raise RomanError("invalid subtractive pair: " + text[i:i + 2])
+        groups.append((current, None, text[i]))
         total += current
         i += 1
     if total < _MIN_VALUE or total > _MAX_VALUE:
         raise RomanError("value out of range 1..3999")
+    problem = _canonical_error(text, groups)
+    if problem is not None:
+        raise RomanError("not a canonical roman numeral: " + problem)
     return total
 
 
